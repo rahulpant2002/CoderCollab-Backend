@@ -1,15 +1,22 @@
 const express = require('express');
 const connectDB = require('./config/database');
 const User = require('./models/user');
+const {validateSignUpdata} = require('./helper/validate')
+
+const validator = require('validator');
+const bcrypt = require('bcrypt');
 
 const app = express();
 app.use(express.json());
 
-//Push the data of a User
 app.post('/signup', async(req, res)=>{
-    const userData = req.body;
-    const user = new User(userData);
     try{
+        validateSignUpdata(req);
+        const {firstName, lastName, emailId, password, age, gender, photoUrl, about, skills} = req.body;
+        const passwordHash = await bcrypt.hash(password, 10);
+        const user = new User({
+            firstName, lastName, emailId, password : passwordHash, age, gender, photoUrl, about, skills
+        });
         await user.save();
         res.send('User added Successfully...');
     }
@@ -18,7 +25,24 @@ app.post('/signup', async(req, res)=>{
     }
 });
 
-//Delete a User
+app.post('/login', async(req, res)=>{
+    try{
+        const {emailId, password} = req.body;
+        if(!validator.isEmail(emailId)) throw new Error("EmailId invalid Format");
+        
+        const user = await User.findOne({emailId : emailId});
+        if(!user) throw new Error("EmailId doesn't exists");
+
+        const isPasswordOk = await bcrypt.compare(password, user.password);
+        if(isPasswordOk) res.send("User login Successfully") ;
+        else throw new Error("Wrong Password");
+    }
+    catch(err){
+        res.status(404).send("ERROR : " + err.message);
+    }
+})
+
+
 app.delete('/user', async(req, res)=>{
     const userId = req.body.id;
     try{
@@ -31,7 +55,6 @@ app.delete('/user', async(req, res)=>{
     }
 })
 
-//Update the Info of a User
 app.patch('/user/:id', async(req, res)=>{
     const userId = req.params?.id;
     const userData = req.body;
@@ -53,7 +76,6 @@ app.patch('/user/:id', async(req, res)=>{
     }
 })
 
-//Get a User by emailId
 app.get('/user', async(req, res)=>{
     const userEmail = req.body.emailId;
     try{
@@ -68,7 +90,6 @@ app.get('/user', async(req, res)=>{
     }
 }); 
 
-//Get all the Users
 app.get('/feed', async(req, res)=>{
     try{
         const allUsers = await User.find({});
