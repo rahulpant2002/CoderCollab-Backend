@@ -1,13 +1,16 @@
 const express = require('express');
+const app = express();
 const connectDB = require('./config/database');
 const User = require('./models/user');
 const {validateSignUpdata} = require('./helper/validate')
 
 const validator = require('validator');
 const bcrypt = require('bcrypt');
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken"); 
 
-const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.post('/signup', async(req, res)=>{
     try{
@@ -34,11 +37,34 @@ app.post('/login', async(req, res)=>{
         if(!user) throw new Error("EmailId doesn't exists");
 
         const isPasswordOk = await bcrypt.compare(password, user.password);
-        if(isPasswordOk) res.send("User login Successfully") ;
+
+        if(isPasswordOk){
+            const token = await jwt.sign( {_id : user._id}, "CODERCOLLAB@2024");
+            res.cookie("token", token);
+            res.send("User login Successfully");
+        }
         else throw new Error("Wrong Password");
     }
     catch(err){
         res.status(404).send("ERROR : " + err.message);
+    }
+})
+
+app.get('/profile', async(req, res)=>{
+    try{
+        const token = req.cookies.token;
+        if(!token) throw new Error("Login Again!!!");
+        
+        const msg = await jwt.verify(token, "CODERCOLLAB@2024");
+        const {_id} = msg;
+        const user = await User.findById(_id);
+        console.log("Logged in User is " + user.firstName + " " + user.lastName);
+
+        if(!user) throw new Error("Login Again!!!");
+        res.send(user);
+    }
+    catch(err){
+        res.status(404).send("ERROR: " + err.message);
     }
 })
 
