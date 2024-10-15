@@ -3,21 +3,23 @@ const authRouter = express.Router();
 const User = require('../models/user')
 const bcrypt = require('bcrypt');
 const validator = require("validator");
-const {validateSignUpdata} = require("../helper/validate"); 
+const jwt = require("jsonwebtoken");
+const {validateSignUpData} = require("../helper/validate"); 
+const { userAuth } = require("../middlewares/auth");
 
 authRouter.post('/signup', async(req, res)=>{
     try{
-        validateSignUpdata(req);
+        validateSignUpData(req);
         const {firstName, lastName, emailId, password, age, gender, photoUrl, about, skills} = req.body;
         const passwordHash = await bcrypt.hash(password, 10);
         const user = new User({
             firstName, lastName, emailId, password : passwordHash, age, gender, photoUrl, about, skills
         });
         await user.save();
-        res.send('User added Successfully...');
+        res.send(`${firstName} ${lastName} added Successfully...`);
     }
     catch(err) {
-        res.status(400).send('Error in Adding User!!! ' + err.message);
+        res.status(400).send('ERROR: ' + err.message);
     }
 });
 
@@ -36,12 +38,23 @@ authRouter.post('/login', async(req, res)=>{
             // const token = await jwt.sign( {_id : user._id}, "CODERCOLLAB@2024", {expiresIn : "7d"});
             const token = await user.getToken();
             res.cookie("token", token, {expires : new Date(Date.now() + 10*24*60*60*1000)});
-            res.send("User login Successfully");
+            res.send(`${user.firstName} ${user.lastName} Logged in Successfully...`)
         }
         else throw new Error("Wrong Password");
     }
     catch(err){
-        res.status(404).send("ERROR : " + err.message);
+        res.status(404).send("ERROR: " + err.message);
+    }
+})
+
+authRouter.post("/logout", userAuth, async(req, res)=>{
+    try{
+        const user = req.user;
+        res.cookie('token', null, {expires : new Date(Date.now())});
+        res.send(`${user.firstName} ${user.lastName} Logged Out Successfully...`);
+    }
+    catch(err){
+        res.status(400).send("ERROR: " + err.message);
     }
 })
 

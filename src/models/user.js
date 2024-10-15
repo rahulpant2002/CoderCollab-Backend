@@ -30,7 +30,9 @@ const userSchema = new mongoose.Schema({
         required : true,
         minLength : 6,
         validate(value){
-            if(value.length < 6) throw new Error("Password length should atleast 6")
+            if(value.length < 6) {
+                throw new Error("Password length should be atleast 6")
+            }
         }
     },
     age : {
