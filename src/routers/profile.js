@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const {userAuth} = require("../middlewares/auth");
-const {validateProfileEditData, validateUpdatePasswordData} = require('../helper/validate')
+const {validateProfileEditData, validateUpdatePasswordData, validateForgotPasswordData} = require('../helper/validate')
 const bcrypt = require('bcrypt');
+const User = require('../models/user')
 
 router.get('/profile/view', userAuth, async(req, res)=>{
     try{
@@ -38,9 +39,12 @@ router.patch('/profile/edit', userAuth, async(req, res)=>{
 router.patch('/profile/updatePassword', userAuth, async(req, res)=>{
     try{
         if(!validateUpdatePasswordData(req) ) throw new Error('Enter the Details Correctly!!!')
-        const user = req.user;
+        
         const {existingPassword, updatedPassword} = req.body;
+        if(updatedPassword.length < 6) throw new Error('Password Length should be atleast 6');
 
+        const user = req.user;
+        
         const isOK = await bcrypt.compare(existingPassword, user.password);
         if(!isOK) throw new Error("Enter Correct Existing Password!!!");
 
@@ -48,6 +52,26 @@ router.patch('/profile/updatePassword', userAuth, async(req, res)=>{
         user.password = hashPassword;
         await user.save();
 
+        res.send(`${user.firstName} ${user.lastName}, your Password Updated Successfully...`);
+    }
+    catch(err){
+        res.status(404).send("ERROR: " + err.message);
+    }
+})
+
+router.patch('/profile/forgotPassword', async(req, res)=>{
+    try{
+        if( !validateForgotPasswordData(req)) throw new Error("Invalid Credentials!!!");
+
+        const {firstName, lastName, emailId, updatedPassword} = req.body;
+        const user = await User.findOne({emailId : emailId});
+        if(!user) throw new Error('EmailId does not exists!!!');
+        if( !(firstName === user.firstName && lastName === user.lastName) ) throw new Error(`Invalid Credentials!!!`);
+
+        if(updatedPassword.length < 6) throw new Error("Password Length should be atleast 6!!!")
+        const hashPassword = await bcrypt.hash(updatedPassword, 10);
+        user.password = hashPassword;
+        await user.save();
         res.send(`${user.firstName} ${user.lastName}, your Password Updated Successfully...`);
     }
     catch(err){

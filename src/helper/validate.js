@@ -1,3 +1,4 @@
+const User = require('../models/user')
 
 const validateSignUpData = (req)=>{
     const {lastName, password} = req.body;
@@ -18,10 +19,23 @@ const validateUpdatePasswordData = (req)=>{
     const allowedFields = ['existingPassword', 'updatedPassword'];
 
     const isOK = Object.keys(req.body).every(k => allowedFields.includes(k));
-    if (!isOK) return false;
-
-    if(req.body.updatedPassword.length < 6) throw new Error("Updated Password Length should be atleast 6!!!");
-    return true;
+    return isOK
 }
 
-module.exports = {validateSignUpData, validateProfileEditData, validateUpdatePasswordData};
+const validateForgotPasswordData = (req)=>{
+    const allowedFields = ['firstName', 'lastName', 'emailId', 'updatedPassword'];
+
+    const isOK = Object.keys(req.body).every(k => allowedFields.includes(k));
+    return isOK;
+}
+
+const validateRequestSendData = (req)=>{
+    const status = req.params.status;
+
+    const allowedFields = ['ignored', 'interested'];
+    const isOK = allowedFields.includes(status);
+    if(!isOK) throw new Error(`Invalid Status Type - ${status}!!!`);
+}
+
+module.exports = {validateSignUpData, validateProfileEditData, validateUpdatePasswordData,
+    validateForgotPasswordData, validateRequestSendData};
