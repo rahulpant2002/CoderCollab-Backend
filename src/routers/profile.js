@@ -8,7 +8,6 @@ const User = require('../models/user')
 router.get('/profile/view', userAuth, async(req, res)=>{
     try{
         const user = req.user;
-        console.log(`Logged in User is ${user.firstName} ${user.lastName}`);
         res.send(user);
     }
     catch(err){

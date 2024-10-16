@@ -31,12 +31,38 @@ router.post('/request/send/:status/:toUserId', userAuth, async(req, res)=>{
         const data = await connectionRequest.save();
 
         res.send({
-            message : `${req.user.firstName} ${status}, the profile of ${toUser.firstName}`,
+            message : `${req.user.firstName} ${status}, the profile of ${toUser.firstName} ${toUser.lastName}`,
             data
         })
     }
     catch(err){
         res.status(404).send("ERROR: " + err.message);
+    }
+})
+
+router.post('/request/review/:status/:requestId', userAuth, async(req, res)=>{
+    try{
+        const toUserId = req.user._id;
+        const requestId = req.params.requestId;
+        const status = req.params.status;
+        const fromUserId = requestId.fromUserId;
+        // console.log(fromUserId);
+
+        if(!(status==='accepted' || status==='rejected')) throw new Error(`Invalid Status - ${status}!!!`);
+
+        const isRequest = await ConnectionRequest.findOne({_id : requestId, status : 'interested', toUserId });
+        if(!isRequest) throw new Error('Request doesnot exists!!!');
+
+        isRequest.status = status;
+        const data = await isRequest.save();
+
+        res.send({
+            message : `${req.user.firstName} ${status} the Request`,
+            data
+        })
+    }
+    catch(err){
+        res.status(400).send("ERROR: " + err.message);
     }
 })
 
