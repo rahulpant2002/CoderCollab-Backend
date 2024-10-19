@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { userAuth } = require('../middlewares/auth');
 const ConnectionRequest = require('../models/connectionRequest');
+const User = require('../models/User')
 
 const FRIENDS_DATA = 'firstName lastName gender photoUrl about skills'
 
@@ -54,6 +55,34 @@ router.get('/user/connections', userAuth, async(req, res)=>{
     }
     catch(err){
         res.status(400).send("ERROR: Something Went Wrong!!! " + err.message);
+    }
+})
+
+router.get('/user/feed', userAuth, async(req, res)=>{
+    try{
+        const loggedInUser = req.user;
+        const connections = await ConnectionRequest.find({
+            $or : [
+                {toUserId : loggedInUser._id},
+                {fromUserId : loggedInUser._id}
+            ]
+        })
+        .select('fromUserId toUserId');
+
+        const hideUsers = new Set();
+        connections.forEach(conn => {
+            hideUsers.add(conn.fromUserId.toString());
+            hideUsers.add(conn.toUserId.toString());
+        });
+
+        const toShow = await User.find({
+            _id : { $nin : Array.from(hideUsers)}
+        })
+        .select(FRIENDS_DATA);
+        res.send({toShow});
+    }
+    catch(err){
+        res.status(400).json({message : 'ERROR: Something Went Wrong!!! '});
     }
 })
 
