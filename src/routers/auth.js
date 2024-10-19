@@ -10,11 +10,11 @@ const { userAuth } = require("../middlewares/auth");
 authRouter.post('/signup', async(req, res)=>{
     try{
         validateSignUpData(req);
-        const {firstName, lastName, emailId, password, age, gender, photoUrl, about, skills} = req.body;
+        const {firstName, lastName, emailId, password} = req.body;
         const passwordHash = await bcrypt.hash(password, 10);
         
         const user = new User({
-            firstName, lastName, emailId, password : passwordHash, age, gender : gender.toLowerCase(), photoUrl, about, skills
+            firstName, lastName, emailId, password : passwordHash
         });
         await user.save();
         res.send(`${firstName} ${lastName} added Successfully...`);

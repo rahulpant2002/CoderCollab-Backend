@@ -61,6 +61,12 @@ router.get('/user/connections', userAuth, async(req, res)=>{
 router.get('/user/feed', userAuth, async(req, res)=>{
     try{
         const loggedInUser = req.user;
+
+        const page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+        limit = (limit > 50) ? 50 : limit;
+        const skip = (page-1)*limit;
+
         const connections = await ConnectionRequest.find({
             $or : [
                 {toUserId : loggedInUser._id},
@@ -75,11 +81,14 @@ router.get('/user/feed', userAuth, async(req, res)=>{
             hideUsers.add(conn.toUserId.toString());
         });
 
-        const toShow = await User.find({
-            _id : { $nin : Array.from(hideUsers)}
+        const showUsers = await User.find({
+            _id : { 
+                    $nin : Array.from(hideUsers),
+                    $ne : loggedInUser._id
+                }
         })
-        .select(FRIENDS_DATA);
-        res.send({toShow});
+        .select(FRIENDS_DATA).skip(skip).limit(limit);
+        res.send({users : showUsers});
     }
     catch(err){
         res.status(400).json({message : 'ERROR: Something Went Wrong!!! '});
