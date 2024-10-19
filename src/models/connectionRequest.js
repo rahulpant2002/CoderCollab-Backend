@@ -1,13 +1,15 @@
 const mongoose = require('mongoose');
 
-const connectionRequestSchema = new mongoose.Schema({
+const ConnectionRequestSchema = new mongoose.Schema({
     toUserId : {
         type : mongoose.Schema.Types.ObjectId,
         required : true,
+        ref : 'User'
     },
     fromUserId : {
         type : mongoose.Schema.Types.ObjectId,
         required : true,
+        ref : 'User'
     },
     status : {
         type : String,
@@ -22,7 +24,7 @@ const connectionRequestSchema = new mongoose.Schema({
     timestamps : true
 });
 
-connectionRequestSchema.index({ toUserId : 1, fromUserId : 1 });
-connectionRequestSchema.index({  _id : 1, status : 1, toUserId : 1});
+ConnectionRequestSchema.index({ toUserId : 1, fromUserId : 1 });
+ConnectionRequestSchema.index({  _id : 1, status : 1, toUserId : 1});
 
-module.exports = new mongoose.model('ConnectionRequest', connectionRequestSchema);
+module.exports = new mongoose.model('ConnectionRequest', ConnectionRequestSchema);

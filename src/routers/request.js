@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const {userAuth} = require("../middlewares/auth")
-const ConnectionRequest = require('../models/connectionRequest')
-const User = require('../models/user')
+const ConnectionRequest = require("../models/connectionRequest");
+const User = require('../models/User')
 const {validateRequestSendData} = require('../helper/validate')
 
 router.post('/request/send/:status/:toUserId', userAuth, async(req, res)=>{
@@ -45,8 +45,6 @@ router.post('/request/review/:status/:requestId', userAuth, async(req, res)=>{
         const toUserId = req.user._id;
         const requestId = req.params.requestId;
         const status = req.params.status;
-        const fromUserId = requestId.fromUserId;
-        // console.log(fromUserId);
 
         if(!(status==='accepted' || status==='rejected')) throw new Error(`Invalid Status - ${status}!!!`);
 
@@ -56,8 +54,11 @@ router.post('/request/review/:status/:requestId', userAuth, async(req, res)=>{
         isRequest.status = status;
         const data = await isRequest.save();
 
+        const {fromUserId}= isRequest;
+        const fromUser = await User.findById(fromUserId);
+
         res.send({
-            message : `${req.user.firstName} ${status} the Request`,
+            message : `${req.user.firstName} ${status} the Request of ${fromUser.firstName} ${fromUser.lastName}`,
             data
         })
     }
