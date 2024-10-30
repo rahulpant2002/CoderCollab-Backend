@@ -51,7 +51,7 @@ router.get('/user/connections', userAuth, async(req, res)=>{
 
         res.json({
             message : `Connection of ${loggedInUser.firstName} ${loggedInUser.lastName}`,
-            allFriends});
+            data});
     }
     catch(err){
         res.status(400).send("ERROR: Something Went Wrong!!! " + err.message);

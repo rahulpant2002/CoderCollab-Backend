@@ -39,7 +39,7 @@ authRouter.post('/login', async(req, res)=>{
             // const token = await jwt.sign( {_id : user._id}, "CODERCOLLAB@2024", {expiresIn : "7d"});
             const token = await user.getToken();
             res.cookie("token", token, {expires : new Date(Date.now() + 10*24*60*60*1000)});
-            res.send(`${user.firstName} ${user.lastName} Logged in Successfully...`)
+            res.send(user)
         }
         else throw new Error("Wrong Password");
     }
