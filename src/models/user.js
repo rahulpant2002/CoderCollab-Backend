@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
     gender : {
         type : String,
         enum : {
-            values : ['male', 'female', 'others'],
+            values : ['Male', 'Female', 'Other'],
             message : `{VALUE} is invalid Gender type`,
         }
     },
@@ -58,6 +58,7 @@ const userSchema = new mongoose.Schema({
     },
     about : {
         type : String,
+        default : "This is Default About of the User"
     },
     skills : {
         type : [String],

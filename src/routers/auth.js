@@ -27,10 +27,10 @@ authRouter.post('/signup', async(req, res)=>{
 authRouter.post('/login', async(req, res)=>{
     try{
         const {emailId, password} = req.body;
-        if(!validator.isEmail(emailId)) throw new Error("EmailId invalid Format");
+        if(!validator.isEmail(emailId)) throw new Error("EmailId invalid Format!!!");
         
         const user = await User.findOne({emailId : emailId});
-        if(!user) throw new Error("EmailId doesn't exists");
+        if(!user) throw new Error("EmailId doesn't exists!!!");
 
         // const isPasswordOk = await bcrypt.compare(password, user.password);
         const isPasswordOk = await user.validatePassword(password);
@@ -41,7 +41,7 @@ authRouter.post('/login', async(req, res)=>{
             res.cookie("token", token, {expires : new Date(Date.now() + 10*24*60*60*1000)});
             res.send(user)
         }
-        else throw new Error("Wrong Password");
+        else throw new Error("Wrong Password!!!");
     }
     catch(err){
         res.status(404).send("ERROR: " + err.message);

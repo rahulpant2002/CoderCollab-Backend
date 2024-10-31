@@ -15,7 +15,7 @@ router.get('/profile/view', userAuth, async(req, res)=>{
     }
 })
 
-router.patch('/profile/edit', userAuth, async(req, res)=>{
+router.put('/profile/edit', userAuth, async(req, res)=>{
     try{
         if( !validateProfileEditData(req)) {
             throw new Error("Information can't be updated!!!");
@@ -30,6 +30,7 @@ router.patch('/profile/edit', userAuth, async(req, res)=>{
             data : user
         });
     }
+    
     catch(err){
         res.status(404).send("ERROR: " + err.message);
     }
