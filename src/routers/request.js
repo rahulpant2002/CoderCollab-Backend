@@ -52,8 +52,14 @@ router.post('/request/review/:status/:requestId', userAuth, async(req, res)=>{
         const isRequest = await ConnectionRequest.findOne({_id : requestId, status : 'interested', toUserId });
         if(!isRequest) throw new Error('Request doesnot exists!!!');
 
-        isRequest.status = status;
-        const data = await isRequest.save();
+        let data;
+        if(status==='accepted'){   
+            isRequest.status = status;
+            data = await isRequest.save();
+        }
+        else{
+            data = await ConnectionRequest.deleteOne({_id : isRequest._id});
+        }
 
         const {fromUserId}= isRequest;
         const fromUser = await User.findById(fromUserId);

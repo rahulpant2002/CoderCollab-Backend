@@ -4,7 +4,7 @@ const { userAuth } = require('../middlewares/auth');
 const ConnectionRequest = require('../models/connectionRequest');
 const User = require('../models/User')
 
-const FRIENDS_DATA = 'firstName lastName age gender photoUrl about skills'
+const FRIENDS_DATA = 'firstName lastName age gender photoUrl about skills '
 
 router.get('/user/receivedRequests', userAuth, async(req, res)=>{
     try{
@@ -45,7 +45,8 @@ router.get('/user/connections', userAuth, async(req, res)=>{
           .populate('toUserId', FRIENDS_DATA);
 
         const data = allFriends.map(connection => {
-            const friendData = (connection.fromUserId._id.toString()===loggedInUser._id.toString()) ? connection.toUserId : connection.fromUserId;
+            const friendData = (connection.fromUserId._id.toString()===loggedInUser._id.toString()) ? {_id : connection._id, data : connection.toUserId} : {_id : connection._id, data :connection.fromUserId};
+            console.log(friendData)
             return friendData;
         })
 
@@ -101,12 +102,13 @@ router.post("/connection/remove/:connectId", userAuth, async(req, res)=>{
         const connectId = req.params.connectId;
         const status = "accepted";
 
-        const isConnection = await ConnectionRequest.findOne({_id : connectId, status, 
+        const isConnection = await ConnectionRequest.findOne({
             $or : [
-                {toUserId : loggedInUserId},
-                {fromUserId : loggedInUserId}
+                {toUserId : loggedInUserId, _id:connectId, status},
+                {fromUserId : loggedInUserId, _id:connectId, status}
             ]
         });
+        console.log(isConnection)
         if(!isConnection) throw new Error("No Connection Exists");
 
         await ConnectionRequest.deleteOne({_id : isConnection._id});
