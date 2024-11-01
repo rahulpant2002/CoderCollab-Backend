@@ -23,6 +23,7 @@ router.post('/request/send/:status/:toUserId', userAuth, async(req, res)=>{
                 {fromUserId : toUserId, toUserId : fromUserId}
             ]
         });
+
         if(isAlreadySent) throw new Error('Already sent the Connection Request!!!');
 
         const connectionRequest = new ConnectionRequest({
@@ -61,6 +62,23 @@ router.post('/request/review/:status/:requestId', userAuth, async(req, res)=>{
             message : `${req.user.firstName} ${status} the Request of ${fromUser.firstName} ${fromUser.lastName}`,
             data
         })
+    }
+    catch(err){
+        res.status(400).send("ERROR: " + err.message);
+    }
+})
+
+router.post('/request/cancel/:requestId', userAuth, async(req, res)=>{
+    try{
+        const fromUserId = req.user._id;
+        const requestId = req.params.requestId;
+        const status = 'interested';
+
+        const isRequest = await ConnectionRequest.findOne({_id : requestId, status, fromUserId});
+        if(!isRequest) throw new Error("No Request Exists!!!");
+        await ConnectionRequest.deleteOne({_id : isRequest._id});
+
+        res.send({message : "Deleted Request Successfully"});
     }
     catch(err){
         res.status(400).send("ERROR: " + err.message);
