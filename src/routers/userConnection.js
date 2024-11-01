@@ -95,4 +95,26 @@ router.get('/user/feed', userAuth, async(req, res)=>{
     }
 })
 
+router.post("/connection/remove/:connectId", userAuth, async(req, res)=>{
+    try{
+        const loggedInUserId = req.user._id;
+        const connectId = req.params.connectId;
+        const status = "accepted";
+
+        const isConnection = await ConnectionRequest.findOne({_id : connectId, status, 
+            $or : [
+                {toUserId : loggedInUserId},
+                {fromUserId : loggedInUserId}
+            ]
+        });
+        if(!isConnection) throw new Error("No Connection Exists");
+
+        await ConnectionRequest.deleteOne({_id : isConnection._id});
+        res.send({message : "Connection Removed Successfully"});
+    }
+    catch(err){
+        res.status(400).send("ERROR: " + err.message);
+    }
+})
+
 module.exports = router;
