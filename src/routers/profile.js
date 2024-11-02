@@ -36,7 +36,7 @@ router.put('/profile/edit', userAuth, async(req, res)=>{
     }
 })
 
-router.patch('/profile/updatePassword', userAuth, async(req, res)=>{
+router.put('/profile/updatePassword', userAuth, async(req, res)=>{
     try{
         if(!validateUpdatePasswordData(req) ) throw new Error('Enter the Details Correctly!!!')
         

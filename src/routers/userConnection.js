@@ -117,4 +117,14 @@ router.post("/connection/remove/:connectId", userAuth, async(req, res)=>{
     }
 })
 
+router.get("/allUsers", userAuth, async(req, res)=>{
+    try{
+        const allUsers = await User.find().select("firstName lastName email photoUrl about skills").sort({firstName : 1, lastName : 1});
+        res.send({data : allUsers});
+    }
+    catch(err){
+        res.send({message : "ERROR: " + err.message});
+    }
+})
+
 module.exports = router;
