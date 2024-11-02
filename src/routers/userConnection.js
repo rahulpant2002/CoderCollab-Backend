@@ -46,7 +46,6 @@ router.get('/user/connections', userAuth, async(req, res)=>{
 
         const data = allFriends.map(connection => {
             const friendData = (connection.fromUserId._id.toString()===loggedInUser._id.toString()) ? {_id : connection._id, data : connection.toUserId} : {_id : connection._id, data :connection.fromUserId};
-            console.log(friendData)
             return friendData;
         })
 
@@ -108,7 +107,6 @@ router.post("/connection/remove/:connectId", userAuth, async(req, res)=>{
                 {fromUserId : loggedInUserId, _id:connectId, status}
             ]
         });
-        console.log(isConnection)
         if(!isConnection) throw new Error("No Connection Exists");
 
         await ConnectionRequest.deleteOne({_id : isConnection._id});

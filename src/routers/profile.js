@@ -59,17 +59,17 @@ router.patch('/profile/updatePassword', userAuth, async(req, res)=>{
     }
 })
 
-router.patch('/profile/forgotPassword', async(req, res)=>{
+router.put('/profile/forgotPassword', async(req, res)=>{
     try{
         if( !validateForgotPasswordData(req)) throw new Error("Invalid Credentials!!!");
 
-        const {firstName, lastName, emailId, updatedPassword} = req.body;
+        const {firstName, lastName, emailId, newPassword} = req.body;
         const user = await User.findOne({emailId : emailId});
         if(!user) throw new Error('EmailId does not exists!!!');
         if( !(firstName === user.firstName && lastName === user.lastName) ) throw new Error(`Invalid Credentials!!!`);
 
-        if(updatedPassword.length < 6) throw new Error("Password Length should be atleast 6!!!")
-        const hashPassword = await bcrypt.hash(updatedPassword, 10);
+        if(newPassword.length < 6) throw new Error("Password Length should be atleast 6!!!")
+        const hashPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashPassword;
         await user.save();
         res.send(`${user.firstName} ${user.lastName}, your Password Updated Successfully...`);

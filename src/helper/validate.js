@@ -23,7 +23,7 @@ const validateUpdatePasswordData = (req)=>{
 }
 
 const validateForgotPasswordData = (req)=>{
-    const allowedFields = ['firstName', 'lastName', 'emailId', 'updatedPassword'];
+    const allowedFields = ['firstName', 'lastName', 'emailId', 'Password'];
 
     const isOK = Object.keys(req.body).every(k => allowedFields.includes(k));
     return isOK;
