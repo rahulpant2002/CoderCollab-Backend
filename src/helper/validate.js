@@ -1,4 +1,4 @@
-const User = require('../models/User')
+const User = require('../models/user')
 
 const validateSignUpData = (req)=>{
     const {lastName, password} = req.body;

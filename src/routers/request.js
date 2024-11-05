@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {userAuth} = require("../middlewares/auth")
 const ConnectionRequest = require("../models/connectionRequest");
-const User = require('../models/User')
+const User = require('../models/user')
 const {validateRequestSendData} = require('../helper/validate')
 
 router.post('/request/send/:status/:toUserId', userAuth, async(req, res)=>{
