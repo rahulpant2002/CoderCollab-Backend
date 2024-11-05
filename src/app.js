@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 app.use(cors({
-    origin : "http://localhost:5173/",
+    origin : "https://coder-collab-frontend.vercel.app/",
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"], 
     credentials : true
 }));
