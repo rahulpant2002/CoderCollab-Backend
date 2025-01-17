@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 app.use(cors({
-    origin : "https://coder-collab-frontend.vercel.app/",
+    origin : "http://localhost:5173/",
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"], 
     credentials : true
 }));
@@ -25,8 +25,8 @@ app.use('/', userConnectionRouters);
 connectDB()
     .then(()=>{
         console.log('Database Connected Successfully...');
-        app.listen(7777, ()=>{
-            console.log(`Server is running on port 7777`);
+        app.listen(8000, ()=>{
+            console.log(`Server is running on port 8000`);
         })
     })
     .catch((err)=>{
