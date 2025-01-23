@@ -127,4 +127,29 @@ router.get("/allUsers", userAuth, async(req, res)=>{
     }
 })
 
+router.get("/findChatFriend/:connectId", userAuth, async(req, res)=>{
+    try{
+        const loggedInUserId = req.user._id;
+        const connectId = req.params.connectId;
+        const status = "accepted";
+
+        const isConnection = await ConnectionRequest.findOne({
+            $or : [
+                {toUserId : loggedInUserId, _id:connectId, status},
+                {fromUserId : loggedInUserId, _id:connectId, status}
+            ]
+        });
+        if(!isConnection) throw new Error("No Connection Exists");
+
+        const {toUserId, fromUserId} = isConnection;
+        const friendId = (toUserId.equals(loggedInUserId) ? fromUserId : toUserId);
+
+        const friend = await User.findById(friendId);
+        res.send({data : friend});
+    }
+    catch(err){
+        res.send({message : "ERROR: " + err.message});
+    }
+})
+
 module.exports = router;

@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+const ConnectionRequest = require('../models/connectionRequest');
 const User = require('../models/user')
 
 const validateSignUpData = (req)=>{
