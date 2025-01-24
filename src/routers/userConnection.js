@@ -44,7 +44,9 @@ router.get('/user/connections', userAuth, async(req, res)=>{
         }).populate('fromUserId', FRIENDS_DATA)
           .populate('toUserId', FRIENDS_DATA);
 
-        const data = allFriends.map(connection => {
+        const filterFriends = allFriends.filter(conn => conn.toUserId != null && conn.fromUserId != null);  
+
+        const data = filterFriends.map(connection => {
             const friendData = (connection.fromUserId._id.toString()===loggedInUser._id.toString()) ? {_id : connection._id, data : connection.toUserId} : {_id : connection._id, data :connection.fromUserId};
             return friendData;
         })

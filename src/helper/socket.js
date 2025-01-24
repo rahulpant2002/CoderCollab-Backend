@@ -10,6 +10,8 @@ const initialiseSocket = (server)=>{
     const io = socket(server, {
         cors : {
             origin : "http://localhost:5173",
+            methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"], 
+            credentials : true
         }
     });
 
