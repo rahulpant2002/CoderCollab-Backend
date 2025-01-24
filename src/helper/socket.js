@@ -14,24 +14,21 @@ const initialiseSocket = (server)=>{
     });
 
     io.on('connection', (socket) => { 
-        socket.on("joinChat", ({fullName, connectionId})=>{
+        socket.on("joinChat", ({sender, connectionId})=>{
             const roomId = getSecretRoomId(connectionId);
             socket.join(roomId);
         });
         
-        socket.on("sendMessage", async({fullName, connectionId, text})=>{
+        socket.on("sendMessage", async({sender, connectionId, message})=>{
             try{
+                const roomId = getSecretRoomId(connectionId);
+                io.to(roomId).emit("messageReceived", {sender, message});
                 let chatHistory = await Chat.findOne({connectionId});
                 if(!chatHistory){
                     chatHistory = new Chat({connectionId, messages : []})    
                 }
-
-                chatHistory.messages.push({sender : fullName, message : text});
-                await chatHistory.save();
-
-                const roomId = getSecretRoomId(connectionId);
-                io.to(roomId).emit("messageReceived", {fullName, text});
-                
+                chatHistory.messages.push({sender, message});
+                await chatHistory.save();  
             }
             catch(err){
                 console.error(err.message)
